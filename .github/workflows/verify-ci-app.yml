@@ -1,0 +1,27 @@
+name: Verify CI App
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get an attmonk-ci token
+        id: app
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: 5324952
+          private-key: ${{ secrets.ATTMONK_CI_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+      - name: Verify repository write access
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          test "$(gh api "repos/${REPOSITORY}" --jq '.permissions.push')" = true
+          echo 'ATTMonk App credentials and repository write access verified.'

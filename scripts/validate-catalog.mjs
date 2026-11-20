@@ -1,0 +1,148 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
+const manifestPath = new URL("../manifest.json", import.meta.url);
+const checksumsPath = new URL("../checksums.txt", import.meta.url);
+
+const catalogDisplayNotes = new Map([
+  [
+    "silo.attmonk.romm",
+    {
+      displayName: "RomM for Silo",
+      description: "Browse RomM and play classic games with profile-specific account links and saved progress.",
+    },
+  ],
+  [
+    "silo.attmonk.hdhomerun",
+    {
+      displayName: "HDHomeRun for Silo",
+      description: "Live TV from physical and emulated HDHomeRun endpoints, with guide, tuner limits, and station failover. Browser playback requires ATTMonk Silo stream relay.",
+    },
+  ],
+  [
+    "silo.attmonk.dispatcharr",
+    {
+      displayName: "Dispatcharr for Silo",
+      description: "Dispatcharr-backed Live TV, guide, saved lineups, sports, events, playback, and recording integration.",
+    },
+  ],
+  [
+    "silo.attmonk.app-links",
+    {
+      displayName: "App Links",
+      description: "Launcher for external services, opened in a new tab or inside Silo, with an admin page for managing links.",
+    },
+  ],
+  [
+    "silo.attmonk.trakt",
+    {
+      displayName: "Trakt",
+      description: "Two-way watch history, resume progress, favorites, watchlist, movie and show ratings, and dropped shows, plus live scrobbling, for Trakt accounts.",
+    },
+  ],
+  [
+    "silo.attmonk.xtream",
+    {
+      displayName: "XC for Silo",
+      description: "Xtream Codes-first Live TV app with guide, VOD, series, provider Catch-up, and multiview.",
+    },
+  ],
+]);
+
+const index = JSON.parse(readFileSync(manifestPath, "utf8"));
+const checksumLines = readFileSync(checksumsPath, "utf8")
+  .split(/\r?\n/)
+  .map((line) => line.trim())
+  .filter(Boolean);
+
+const checksums = new Map();
+for (const line of checksumLines) {
+  const match = line.match(/^([a-f0-9]{64})\s+\*?(.+)$/i);
+  if (!match) {
+    throw new Error(`Invalid checksum line: ${line}`);
+  }
+  checksums.set(path.basename(match[2]), match[1].toLowerCase());
+}
+
+if (!Array.isArray(index.plugins) || index.plugins.length === 0) {
+  throw new Error("manifest.json must contain a non-empty plugins array");
+}
+
+const seen = new Set();
+for (const pkg of index.plugins) {
+  const manifest = pkg.manifest;
+  if (!manifest?.plugin_id) {
+    throw new Error("catalog package is missing manifest.plugin_id");
+  }
+  if (!manifest.version) {
+    throw new Error(`${manifest.plugin_id} is missing manifest.version`);
+  }
+  if (!manifest.silo_api_version) {
+    throw new Error(`${manifest.plugin_id} is missing manifest.silo_api_version`);
+  }
+  if (!Array.isArray(manifest.capabilities) || manifest.capabilities.length === 0) {
+    throw new Error(`${manifest.plugin_id} must declare capabilities`);
+  }
+
+  const expectedDisplayNote = catalogDisplayNotes.get(manifest.plugin_id);
+  if (!expectedDisplayNote) {
+    throw new Error(`${manifest.plugin_id} is missing from catalogDisplayNotes`);
+  }
+  const presentation = manifest.presentation;
+  if (presentation) {
+    if (presentation.display_name !== expectedDisplayNote.displayName) {
+      throw new Error(
+        `${manifest.plugin_id} presentation.display_name must be "${expectedDisplayNote.displayName}"`,
+      );
+    }
+    if (presentation.publisher_name === "Silo") {
+      throw new Error(`${manifest.plugin_id} publisher_name must not be Silo`);
+    }
+    if (!presentation.source_url) {
+      throw new Error(`${manifest.plugin_id} presentation.source_url is required`);
+    }
+  } else {
+    const primaryCapability = manifest.capabilities[0];
+    if (primaryCapability.display_name !== expectedDisplayNote.displayName) {
+      throw new Error(
+        `${manifest.plugin_id} first capability display_name must be "${expectedDisplayNote.displayName}"`,
+      );
+    }
+    if (primaryCapability.description !== expectedDisplayNote.description) {
+      throw new Error(`${manifest.plugin_id} first capability description must preserve the catalog note`);
+    }
+  }
+
+  const key = `${manifest.plugin_id}@${manifest.version}`;
+  if (seen.has(key)) {
+    throw new Error(`duplicate catalog entry ${key}`);
+  }
+  seen.add(key);
+
+  if (!pkg.binaries || Object.keys(pkg.binaries).length === 0) {
+    throw new Error(`${key} is missing binaries`);
+  }
+  if (!pkg.binaries["linux/amd64"]?.url) {
+    throw new Error(`${key} is missing linux/amd64 binary url`);
+  }
+  for (const [platform, binary] of Object.entries(pkg.binaries)) {
+    if (!binary?.url) {
+      throw new Error(`${key} ${platform} binary is missing url`);
+    }
+    const filename = path.basename(new URL(binary.url).pathname);
+    const expectedChecksum = checksums.get(filename);
+    if (!expectedChecksum) {
+      throw new Error(`${key} binary ${filename} is missing from checksums.txt`);
+    }
+    if (binary.checksum?.toLowerCase() !== expectedChecksum) {
+      throw new Error(`${key} ${platform} binary checksum does not match checksums.txt`);
+    }
+  }
+  const linuxAMD64Filename = path.basename(new URL(pkg.binaries["linux/amd64"].url).pathname);
+  const linuxAMD64Checksum = checksums.get(linuxAMD64Filename);
+  if (manifest.checksum?.toLowerCase() !== linuxAMD64Checksum) {
+    throw new Error(`${key} manifest checksum must match the linux/amd64 binary checksum`);
+  }
+}
+
+console.log(`Validated ${index.plugins.length} catalog plugins`);

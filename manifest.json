@@ -1,0 +1,437 @@
+{
+  "plugins": [
+    {
+      "manifest": {
+        "plugin_id": "silo.attmonk.dispatcharr",
+        "version": "0.14.0",
+        "checksum": "560744ad771d493ad4122d92978164a3baf58e144e4854eef06c9b89e2688349",
+        "silo_api_version": "v1",
+        "supported_platforms": [
+          {
+            "os": "darwin",
+            "arch": "arm64"
+          },
+          {
+            "os": "linux",
+            "arch": "amd64"
+          },
+          {
+            "os": "linux",
+            "arch": "arm64"
+          }
+        ],
+        "capabilities": [
+          {
+            "type": "scheduled_task.v1",
+            "id": "dispatcharr-sync",
+            "display_name": "Dispatcharr catalog sync",
+            "description": "Syncs Live TV channels, guide, VOD, and series from the configured source."
+          },
+          {
+            "type": "scheduled_task.v1",
+            "id": "dispatcharr-refresh-channels",
+            "display_name": "Dispatcharr channel refresh",
+            "description": "Refreshes the Live TV channel lineup without rebuilding the full catalog."
+          },
+          {
+            "type": "scheduled_task.v1",
+            "id": "dispatcharr-refresh-epg",
+            "display_name": "Dispatcharr guide refresh",
+            "description": "Refreshes guide/EPG data for the current Live TV lineup."
+          },
+          {
+            "type": "http_routes.v1",
+            "id": "dispatcharr-routes",
+            "display_name": "Live TV app",
+            "description": "Serves the Live TV app, API, and playback routes."
+          }
+        ],
+        "category": "Video/Live TV",
+        "presentation": {
+          "display_name": "Dispatcharr for Silo",
+          "summary": "Live TV, guide, sports, and DVR plugin for Silo, backed by Dispatcharr.",
+          "description_markdown": "Dispatcharr plugin for Silo. It presents Live TV, the TV guide, sports, events, VOD, series, and Dispatcharr DVR inside Silo. Playback and recordings stay on the configured Dispatcharr, Xtream Codes, or M3U/XMLTV source.",
+          "setup_markdown": "1. Install the plugin in Silo Server.\n2. Open Dispatcharr Admin and choose Dispatcharr Direct, Xtream Codes, or M3U/XMLTV.\n3. For Dispatcharr Direct, use an Admin API key from System > Users > Edit User > API & XC.\n4. Enable the catalog sync scheduled task after install.",
+          "homepage_url": "https://github.com/attmonk/attmonk-plugin-dispatcharr",
+          "source_url": "https://github.com/attmonk/attmonk-plugin-dispatcharr",
+          "support_url": "https://github.com/attmonk/attmonk-plugin-dispatcharr/issues",
+          "changelog_url": "https://github.com/attmonk/attmonk-plugin-dispatcharr/releases",
+          "publisher_name": "ATTMonk",
+          "publisher_url": "https://github.com/attmonk",
+          "license_spdx": "AGPL-3.0-only"
+        },
+        "metadata": {
+          "configuration_check": true,
+          "display_name": "Dispatcharr for Silo",
+          "summary": "Live TV, guide, sports, and DVR plugin for Silo, backed by Dispatcharr.",
+          "jellyfin_api_integration": false
+        }
+      },
+      "repo_url": "https://github.com/attmonk/attmonk-plugin-dispatcharr",
+      "checksums_url": "https://github.com/attmonk/attmonk-plugin-dispatcharr/releases/download/v0.14.0/checksums.txt",
+      "binaries": {
+        "darwin/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-dispatcharr/releases/download/v0.14.0/dispatcharr-0.14.0-darwin-arm64",
+          "checksum": "77b6cacd8d276d910432634f967c77447c5a693d65d133f186da1e8db8d3ce4b"
+        },
+        "linux/amd64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-dispatcharr/releases/download/v0.14.0/dispatcharr-0.14.0-linux-amd64",
+          "checksum": "560744ad771d493ad4122d92978164a3baf58e144e4854eef06c9b89e2688349"
+        },
+        "linux/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-dispatcharr/releases/download/v0.14.0/dispatcharr-0.14.0-linux-arm64",
+          "checksum": "1c304ff9f21b31d86817a7261db4463508452cd6093ff614988d408e63b85cb7"
+        }
+      }
+    },
+    {
+      "manifest": {
+        "plugin_id": "silo.attmonk.app-links",
+        "version": "0.2.0",
+        "checksum": "a635e4d43e64a06ae0703c600bb3dab3823f0eb3e27a22eb4d43ff03309aea46",
+        "silo_api_version": "v1",
+        "supported_platforms": [
+          {
+            "os": "darwin",
+            "arch": "arm64"
+          },
+          {
+            "os": "linux",
+            "arch": "amd64"
+          },
+          {
+            "os": "linux",
+            "arch": "arm64"
+          }
+        ],
+        "capabilities": [
+          {
+            "type": "http_routes.v1",
+            "id": "app-links-routes",
+            "display_name": "App Links",
+            "description": "Launcher for external services, opened in a new tab or inside Silo, with an admin page for managing links."
+          }
+        ],
+        "category": "Apps",
+        "presentation": {
+          "display_name": "App Links",
+          "summary": "Adds an Apps page that launches the other services you run, in a new tab or inside Silo.",
+          "description_markdown": "Admins add links to external services from the App Links admin page. Users open them from Apps in a new tab, or embedded inside Silo with a toolbar for going back. Services that refuse to be embedded can still be opened in a new tab.",
+          "setup_markdown": "1. Open **App Links** in the admin navigation.\n2. Add a link with a name, URL, and open mode. **New tab** works with every service; **Inside Silo** works only with services that allow embedding.\n3. Users find the links under **Apps**.",
+          "homepage_url": "https://github.com/attmonk/attmonk-plugin-app-links",
+          "source_url": "https://github.com/attmonk/attmonk-plugin-app-links",
+          "support_url": "https://github.com/attmonk/attmonk-plugin-app-links/issues",
+          "changelog_url": "https://github.com/attmonk/attmonk-plugin-app-links/releases",
+          "publisher_name": "ATTMonk",
+          "publisher_url": "https://github.com/attmonk"
+        }
+      },
+      "repo_url": "https://github.com/attmonk/attmonk-plugin-app-links",
+      "checksums_url": "https://github.com/attmonk/attmonk-plugin-app-links/releases/download/v0.2.0/checksums.txt",
+      "binaries": {
+        "darwin/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-app-links/releases/download/v0.2.0/app-links-0.2.0-darwin-arm64",
+          "checksum": "6ad9278929bf2cc23c2166af7c0bb8d925c1ef10e1c5d9d1e4cea25560b6c360"
+        },
+        "linux/amd64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-app-links/releases/download/v0.2.0/app-links-0.2.0-linux-amd64",
+          "checksum": "a635e4d43e64a06ae0703c600bb3dab3823f0eb3e27a22eb4d43ff03309aea46"
+        },
+        "linux/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-app-links/releases/download/v0.2.0/app-links-0.2.0-linux-arm64",
+          "checksum": "4dd8814bbb20af1f93f386352f144b6e2455ac3c227441903f971e1bb1c99ca8"
+        }
+      }
+    },
+    {
+      "manifest": {
+        "plugin_id": "silo.attmonk.xtream",
+        "version": "0.9.0",
+        "checksum": "928c3327ff6689fcdf38a6065cfc91272c0a23cf64a394b40368e65d326cec2a",
+        "silo_api_version": "v1",
+        "supported_platforms": [
+          {
+            "os": "darwin",
+            "arch": "arm64"
+          },
+          {
+            "os": "linux",
+            "arch": "amd64"
+          },
+          {
+            "os": "linux",
+            "arch": "arm64"
+          }
+        ],
+        "capabilities": [
+          {
+            "type": "scheduled_task.v1",
+            "id": "xtream-sync",
+            "display_name": "XC for Silo",
+            "description": "Xtream Codes-first Live TV app with guide, VOD, series, provider Catch-up, and multiview."
+          },
+          {
+            "type": "scheduled_task.v1",
+            "id": "xtream-refresh-channels",
+            "display_name": "Xtream channel refresh",
+            "description": "Refresh the configured Xtream Codes or M3U channel catalog."
+          },
+          {
+            "type": "scheduled_task.v1",
+            "id": "xtream-refresh-epg",
+            "display_name": "Xtream guide refresh",
+            "description": "Refresh guide data from the configured source."
+          },
+          {
+            "type": "http_routes.v1",
+            "id": "xtream-routes",
+            "display_name": "Live TV",
+            "description": "Browse and play configured Live TV sources."
+          }
+        ],
+        "category": "Video/Live TV"
+      },
+      "repo_url": "https://github.com/attmonk/attmonk-plugin-xtream-library",
+      "checksums_url": "https://github.com/attmonk/attmonk-plugin-xtream-library/releases/download/v0.9.0/checksums.txt",
+      "binaries": {
+        "darwin/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-xtream-library/releases/download/v0.9.0/xtream-0.9.0-darwin-arm64",
+          "checksum": "7df9566a88431d2d9b33e9d14bacd405d3dc2dc885a8cc427d01bd8a223861e3"
+        },
+        "linux/amd64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-xtream-library/releases/download/v0.9.0/xtream-0.9.0-linux-amd64",
+          "checksum": "928c3327ff6689fcdf38a6065cfc91272c0a23cf64a394b40368e65d326cec2a"
+        },
+        "linux/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-xtream-library/releases/download/v0.9.0/xtream-0.9.0-linux-arm64",
+          "checksum": "c7b033a0fabe49a45589b0890ee085b92ed15fefda121d5ed96662a6293a7f60"
+        }
+      }
+    },
+    {
+      "manifest": {
+        "plugin_id": "silo.attmonk.trakt",
+        "version": "0.4.0",
+        "silo_api_version": "v1",
+        "supported_platforms": [
+          {
+            "os": "darwin",
+            "arch": "arm64"
+          },
+          {
+            "os": "linux",
+            "arch": "amd64"
+          },
+          {
+            "os": "linux",
+            "arch": "arm64"
+          }
+        ],
+        "capabilities": [
+          {
+            "type": "watch_sync_provider.v1",
+            "id": "trakt",
+            "display_name": "Trakt",
+            "description": "Two-way watch history, resume progress, favorites, watchlist, movie and show ratings, and dropped shows, plus live scrobbling, for Trakt accounts.",
+            "watch_sync_provider": {
+              "auth_methods": [
+                3
+              ],
+              "export_watched": true,
+              "export_unwatched": true,
+              "import_watched": true,
+              "import_progress": true,
+              "import_favorites": true,
+              "export_favorites": true,
+              "remove_favorites": true,
+              "import_watchlist": true,
+              "export_watchlist": true,
+              "remove_watchlist": true,
+              "scrobble_playback": true,
+              "import_ratings": true,
+              "export_ratings": true,
+              "sync_dropped": true,
+              "supported_media_types": [
+                1,
+                2,
+                3
+              ],
+              "external_id_namespaces": [
+                "imdb",
+                "tmdb",
+                "tvdb"
+              ],
+              "max_batch_size": 100
+            }
+          }
+        ],
+        "category": "Watch Providers",
+        "checksum": "2a1362c25d50b9990312823ac011d8fb73b0a0f148dfb7394554af65c1f0109d",
+        "presentation": {
+          "display_name": "Trakt",
+          "summary": "Sync Silo watch activity, lists, ratings, and dropped shows with Trakt.",
+          "description_markdown": "Imports watched movies and episodes, resume progress, favorites, the watchlist, movie and show ratings, and dropped shows from Trakt. Exports completed plays, unwatched titles, favorites, watchlist changes, ratings, and dropped shows, and forwards live playback start, pause, and stop events.",
+          "setup_markdown": "Create an API app at [trakt.tv/oauth/applications](https://trakt.tv/oauth/applications) with the redirect URI `urn:ietf:wg:oauth:2.0:oob`, then enter its client ID and client secret below. Each Silo profile then connects its own Trakt account from its watch-provider settings by entering a code at trakt.tv/activate.",
+          "homepage_url": "https://trakt.tv",
+          "source_url": "https://github.com/attmonk/attmonk-plugin-watchprovider-trakt",
+          "support_url": "https://github.com/attmonk/attmonk-plugin-watchprovider-trakt/issues",
+          "changelog_url": "https://github.com/attmonk/attmonk-plugin-watchprovider-trakt/releases",
+          "publisher_name": "ATTMonk",
+          "publisher_url": "https://github.com/attmonk",
+          "license_spdx": "AGPL-3.0-only"
+        }
+      },
+      "repo_url": "https://github.com/attmonk/attmonk-plugin-watchprovider-trakt",
+      "binaries": {
+        "darwin/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-watchprovider-trakt/releases/download/v0.4.0/trakt-0.4.0-darwin-arm64",
+          "checksum": "d7c2689dfe90c75a6e9f9d84a0f6b5882315488ff1eed0cae024de67385a5622"
+        },
+        "linux/amd64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-watchprovider-trakt/releases/download/v0.4.0/trakt-0.4.0-linux-amd64",
+          "checksum": "2a1362c25d50b9990312823ac011d8fb73b0a0f148dfb7394554af65c1f0109d"
+        },
+        "linux/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-watchprovider-trakt/releases/download/v0.4.0/trakt-0.4.0-linux-arm64",
+          "checksum": "17a3c3aaba975351fec382f9caec6b318953728ff85d820114874ebbc332af8f"
+        }
+      },
+      "checksums_url": "https://github.com/attmonk/attmonk-plugin-watchprovider-trakt/releases/download/v0.4.0/checksums.txt"
+    },
+    {
+      "manifest": {
+        "plugin_id": "silo.attmonk.hdhomerun",
+        "version": "0.6.0",
+        "silo_api_version": "v1",
+        "supported_platforms": [
+          {
+            "os": "darwin",
+            "arch": "arm64"
+          },
+          {
+            "os": "linux",
+            "arch": "amd64"
+          },
+          {
+            "os": "linux",
+            "arch": "arm64"
+          }
+        ],
+        "capabilities": [
+          {
+            "type": "http_routes.v1",
+            "id": "hdhomerun-routes",
+            "display_name": "HDHomeRun for Silo",
+            "description": "Live TV from physical and emulated HDHomeRun endpoints, with guide, tuner limits, and station failover. Browser playback requires ATTMonk Silo stream relay."
+          },
+          {
+            "type": "scheduled_task.v1",
+            "id": "hdhomerun-refresh",
+            "display_name": "Refresh HDHomeRun",
+            "description": "Refresh endpoint health, lineup, and guide when due."
+          }
+        ],
+        "category": "Video/Live TV",
+        "checksum": "34e78f6dafbc72a2c55c35c2e6726e88cbd117e100a40120f805701a212390a1",
+        "presentation": {
+          "display_name": "HDHomeRun for Silo",
+          "summary": "Live TV from physical and emulated HDHomeRun tuners.",
+          "description_markdown": "Connect multiple HDHomeRun HTTP endpoints with per-device tuner limits, explicit station failover, and XMLTV or SiliconDust guide data. Uses ATTMonk Silo Live TV contract. DRM-protected channels and DVR are not supported.",
+          "setup_markdown": "Install on ATTMonk Silo fork. Open HDHomeRun Devices and add endpoint addresses reachable from the server. Configure a guide for each endpoint if desired. Browser playback requires the loopback stream relay in the companion Silo fork.",
+          "homepage_url": "https://github.com/attmonk/attmonk-plugin-hdhomerun",
+          "source_url": "https://github.com/attmonk/attmonk-plugin-hdhomerun",
+          "support_url": "https://github.com/attmonk/attmonk-plugin-hdhomerun/issues",
+          "changelog_url": "https://github.com/attmonk/attmonk-plugin-hdhomerun/releases",
+          "publisher_name": "ATTMonk",
+          "publisher_url": "https://github.com/attmonk",
+          "license_spdx": "AGPL-3.0-only"
+        },
+        "metadata": {
+          "configuration_check": true,
+          "display_name": "HDHomeRun for Silo",
+          "summary": "Live TV from physical and emulated HDHomeRun tuners."
+        }
+      },
+      "repo_url": "https://github.com/attmonk/attmonk-plugin-hdhomerun",
+      "binaries": {
+        "darwin/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-hdhomerun/releases/download/v0.6.0/hdhomerun-0.6.0-darwin-arm64",
+          "checksum": "6fe41febc1c33c5cfa20573bce413771866ee6f06983b0c0656e783b80a71c1b"
+        },
+        "linux/amd64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-hdhomerun/releases/download/v0.6.0/hdhomerun-0.6.0-linux-amd64",
+          "checksum": "34e78f6dafbc72a2c55c35c2e6726e88cbd117e100a40120f805701a212390a1"
+        },
+        "linux/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-hdhomerun/releases/download/v0.6.0/hdhomerun-0.6.0-linux-arm64",
+          "checksum": "498099b17d3693f4ad5b02398bcb5c365bcc65897cc68c81686a3cd179f12cd1"
+        }
+      },
+      "checksums_url": "https://github.com/attmonk/attmonk-plugin-hdhomerun/releases/download/v0.6.0/checksums.txt"
+    },
+    {
+      "manifest": {
+        "plugin_id": "silo.attmonk.romm",
+        "version": "0.8.0",
+        "silo_api_version": "v1",
+        "supported_platforms": [
+          {
+            "os": "darwin",
+            "arch": "arm64"
+          },
+          {
+            "os": "linux",
+            "arch": "amd64"
+          },
+          {
+            "os": "linux",
+            "arch": "arm64"
+          }
+        ],
+        "capabilities": [
+          {
+            "type": "http_routes.v1",
+            "id": "romm-routes",
+            "display_name": "RomM for Silo",
+            "description": "Browse RomM and play classic games with profile-specific account links and saved progress."
+          }
+        ],
+        "category": "Games",
+        "checksum": "002dfd419de4984b037547390e0e77d752447bf0ca9ebc8aded32c86ee520b2c",
+        "presentation": {
+          "display_name": "RomM for Silo",
+          "summary": "Your RomM collection, with browser play and personal saves.",
+          "description_markdown": "Browse platforms, collections and games from RomM. Connect each Silo profile to its own RomM account, then play systems supported by locally bundled EmulatorJS 4.2.3. Disc systems may require your BIOS files in RomM; PSP and DOS require an isolated player window. Requires ATTMonk Silo loopback relay. No ROMs or BIOS are included.",
+          "setup_markdown": "Set the RomM server URL in plugin settings, reachable from Silo and your browser. Open Games, choose Connect RomM, and approve Silo Games using your normal RomM or OIDC login. Token and pairing-code entry remain available for older servers. Keep the plugin data directory on persistent storage.",
+          "homepage_url": "https://github.com/attmonk/attmonk-plugin-romm",
+          "source_url": "https://github.com/attmonk/attmonk-plugin-romm",
+          "support_url": "https://github.com/attmonk/attmonk-plugin-romm/issues",
+          "changelog_url": "https://github.com/attmonk/attmonk-plugin-romm/releases",
+          "publisher_name": "ATTMonk",
+          "publisher_url": "https://github.com/attmonk",
+          "license_spdx": "GPL-3.0-only"
+        },
+        "metadata": {
+          "display_name": "RomM for Silo",
+          "summary": "Your RomM collection, with browser play and personal saves."
+        }
+      },
+      "repo_url": "https://github.com/attmonk/attmonk-plugin-romm",
+      "binaries": {
+        "darwin/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-romm/releases/download/v0.8.0/romm-0.8.0-darwin-arm64",
+          "checksum": "210b6d121e4d588afe75991abfcfec41735d443b089b0bb6f57ac4e2fd057661"
+        },
+        "linux/amd64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-romm/releases/download/v0.8.0/romm-0.8.0-linux-amd64",
+          "checksum": "002dfd419de4984b037547390e0e77d752447bf0ca9ebc8aded32c86ee520b2c"
+        },
+        "linux/arm64": {
+          "url": "https://github.com/attmonk/attmonk-plugin-romm/releases/download/v0.8.0/romm-0.8.0-linux-arm64",
+          "checksum": "b8700706e670cb92d0e9fb4c98959f2e9fa4a8621447e94414745ea9b3273cee"
+        }
+      },
+      "checksums_url": "https://github.com/attmonk/attmonk-plugin-romm/releases/download/v0.8.0/checksums.txt"
+    }
+  ]
+}

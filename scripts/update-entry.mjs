@@ -1,0 +1,161 @@
+#!/usr/bin/env node
+// Point one catalog entry at a published plugin release.
+//
+//   node scripts/update-entry.mjs --plugin-id silo.attmonk.xtream \
+//     --repo silo-plugin-xtream-library --version 0.2.72 \
+//     --asset-prefix xtream-0.2.72- --checksums /tmp/xc/checksums.txt [--replace-old]
+//
+// Only the version, checksums and download URLs change. The catalog keeps its own
+// presentation text (enforced by validate-catalog.mjs), so nothing is copied from
+// the plugin's manifest. --replace-old drops older checksums.txt lines for the
+// same asset family; leave it off to keep history (as for xtream-*).
+//
+// --plugin-manifest <path> names the plugin's manifest.json. With it, a plugin the
+// catalog does not list yet gets a new entry built from that manifest (its
+// presentation left out), and --sync-manifest also copies the platforms,
+// capabilities, presentation and metadata into an existing entry (Dispatcharr).
+import { readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+
+const manifestPath = new URL("../manifest.json", import.meta.url);
+const checksumsPath = new URL("../checksums.txt", import.meta.url);
+const platforms = [
+  ["darwin/arm64", "darwin-arm64"],
+  ["linux/amd64", "linux-amd64"],
+  ["linux/arm64", "linux-arm64"],
+];
+
+const args = parseArgs(process.argv.slice(2));
+const version = required("version").replace(/^v/, "");
+const prefix = required("asset-prefix");
+const pluginId = required("plugin-id");
+const repo = required("repo");
+if (repo.includes("/")) {
+  // URLs are built as attmonk/<repo>; an owner here doubles it and 404s.
+  console.error(`--repo takes the repo name only (e.g. silo-plugin-xtream-library), got ${repo}`);
+  process.exit(1);
+}
+
+const release = new Map(
+  readFileSync(required("checksums"), "utf8")
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .map((line) => {
+      const [digest, name] = line.trim().split(/\s+/);
+      return [name.replace(/^\*/, ""), digest.toLowerCase()];
+    }),
+);
+
+const index = JSON.parse(readFileSync(manifestPath, "utf8"));
+const pluginManifest = args["plugin-manifest"] ? JSON.parse(readFileSync(args["plugin-manifest"], "utf8")) : null;
+if (pluginManifest && pluginManifest.plugin_id !== pluginId) {
+  fail(`${args["plugin-manifest"]} is ${pluginManifest.plugin_id}, not ${pluginId}`);
+}
+let entry = index.plugins.find((plugin) => plugin.manifest?.plugin_id === pluginId);
+if (entry && compareVersions(version, entry.manifest.version) < 0) {
+  console.log(`${pluginId}: keeping newer catalog version ${entry.manifest.version}; skipping delayed ${version} release`);
+  process.exit(0);
+}
+if (!entry) {
+  if (!pluginManifest) fail(`catalog does not contain ${pluginId}; pass --plugin-manifest to add it`);
+  entry = {
+    manifest: {
+      plugin_id: pluginId,
+      version,
+      silo_api_version: pluginManifest.silo_api_version,
+      supported_platforms: pluginManifest.supported_platforms,
+      capabilities: pluginManifest.capabilities,
+      ...(pluginManifest.category ? { category: pluginManifest.category } : {}),
+    },
+    repo_url: `https://github.com/attmonk/${repo}`,
+    binaries: {},
+  };
+  index.plugins.push(entry);
+} else if (pluginManifest && args["sync-manifest"]) {
+  for (const key of ["silo_api_version", "supported_platforms", "capabilities", "presentation", "metadata", "category"]) {
+    if (pluginManifest[key] === undefined) delete entry.manifest[key];
+    else entry.manifest[key] = pluginManifest[key];
+  }
+}
+
+const base = `https://github.com/attmonk/${repo}/releases/download/v${version}`;
+const newLines = new Map();
+for (const [key, suffix] of platforms) {
+  const name = `${prefix}${suffix}`;
+  const checksum = release.get(name);
+  if (!checksum) fail(`release checksums have no ${name}`);
+  entry.binaries[key] = { url: `${base}/${name}`, checksum };
+  newLines.set(name, checksum);
+}
+entry.manifest.version = version;
+entry.manifest.checksum = newLines.get(`${prefix}linux-amd64`);
+entry.checksums_url = `${base}/checksums.txt`;
+writeFileSync(manifestPath, `${JSON.stringify(index, null, 2)}\n`);
+
+// "xtream-0.2.72-" -> family "xtream-"; "plugin-" stays "plugin-".
+const family = prefix.replace(/\d+\.\d+\.\d+-$/, "");
+const familyPattern = new RegExp(`^${escape(family)}(\\d+\\.\\d+\\.\\d+-)?(darwin|linux)-(arm64|amd64)$`);
+const lines = readFileSync(checksumsPath, "utf8")
+  .split(/\r?\n/)
+  .filter(Boolean)
+  .filter((line) => {
+    const name = line.trim().split(/\s+/)[1];
+    if (newLines.has(name)) return false;
+    return !(args["replace-old"] && familyPattern.test(name));
+  });
+for (const [name, checksum] of newLines) lines.push(`${checksum}  ${name}`);
+lines.sort((a, b) => (sortKey(a) < sortKey(b) ? -1 : sortKey(a) > sortKey(b) ? 1 : 0));
+writeFileSync(checksumsPath, `${lines.join("\n")}\n`);
+
+console.log(`${pluginId} -> ${version}`);
+execFileSync(process.execPath, [new URL("./validate-catalog.mjs", import.meta.url).pathname], { stdio: "inherit" });
+
+function parseArgs(argv) {
+  const parsed = {};
+  for (let i = 0; i < argv.length; i++) {
+    const key = argv[i].replace(/^--/, "");
+    parsed[key] = argv[i + 1]?.startsWith("--") || argv[i + 1] === undefined ? true : argv[++i];
+  }
+  return parsed;
+}
+
+function required(name) {
+  if (typeof args[name] !== "string") fail(`missing --${name}`);
+  return args[name];
+}
+
+function sortKey(line) {
+  return line.trim().split(/\s+/)[1];
+}
+
+function escape(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function fail(message) {
+  console.error(`update-entry: ${message}`);
+  process.exit(1);
+}
+
+// Release builds can finish out of order. Compare SemVer precedence before
+// changing either the manifest or checksums; build metadata does not rank.
+function compareVersions(left, right) {
+  const parse = value => {
+    const match = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/.exec(value);
+    if (!match) fail(`invalid release version ${value}`);
+    return {core:match.slice(1,4).map(BigInt),pre:match[4]?.split(".")};
+  };
+  const a=parse(left),b=parse(right);
+  for(let i=0;i<3;i++)if(a.core[i]!==b.core[i])return a.core[i]<b.core[i]?-1:1;
+  if(!a.pre||!b.pre)return a.pre? -1:b.pre?1:0;
+  for(let i=0;i<Math.max(a.pre.length,b.pre.length);i++) {
+    if(a.pre[i]===b.pre[i])continue;
+    if(a.pre[i]===undefined)return -1;
+    if(b.pre[i]===undefined)return 1;
+    const numericA=/^\d+$/.test(a.pre[i]),numericB=/^\d+$/.test(b.pre[i]);
+    if(numericA&&numericB){const x=BigInt(a.pre[i]),y=BigInt(b.pre[i]);if(x!==y)return x<y?-1:1;continue;}
+    if(numericA!==numericB)return numericA?-1:1;
+    return a.pre[i]<b.pre[i]?-1:1;
+  }
+  return 0;
+}
