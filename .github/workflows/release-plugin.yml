@@ -46,11 +46,13 @@ on:
         type: string
         default: go test ./...
     secrets:
+      ATTMONK_CI_APPKEY:
+        required: false
       ATTMONK_CI_APP_KEY:
-        required: true
+        required: false
 
 env:
-  ATTMONK_CI_EMAIL: ${{ vars.ATTMONK_CI_EMAIL || '342793482+attmonk-ci[bot]@users.noreply.github.com' }}
+  ATTMONK_CI_EMAIL: '342793482+attmonk-ci[bot]@users.noreply.github.com'
 
 permissions:
   contents: read
@@ -170,7 +172,7 @@ jobs:
         uses: actions/create-github-app-token@v2
         with:
           app-id: 5324952
-          private-key: ${{ secrets.ATTMONK_CI_APP_KEY }}
+          private-key: ${{ secrets.ATTMONK_CI_APPKEY || secrets.ATTMONK_CI_APP_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
 

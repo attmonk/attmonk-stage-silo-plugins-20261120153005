@@ -15,13 +15,16 @@ jobs:
         uses: actions/create-github-app-token@v2
         with:
           app-id: 5324952
-          private-key: ${{ secrets.ATTMONK_CI_APP_KEY }}
+          private-key: ${{ secrets.ATTMONK_CI_APPKEY || secrets.ATTMONK_CI_APP_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
+          permission-contents: write
       - name: Verify repository write access
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
-          REPOSITORY: ${{ github.repository }}
+          REPOSITORY_ID: ${{ github.repository_id }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
         run: |
-          test "$(gh api "repos/${REPOSITORY}" --jq '.permissions.push')" = true
+          test "$APP_SLUG" = attmonk-ci
+          gh api --paginate installation/repositories --jq '.repositories[].id' | grep -Fx "$REPOSITORY_ID"
           echo 'ATTMonk App credentials and repository write access verified.'

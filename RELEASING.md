@@ -71,3 +71,13 @@ node scripts/update-entry.mjs --plugin-id <catalog plugin id> --repo <plugin rep
 The script changes only the version, checksums and download URLs unless `--sync-manifest` is set, then runs the validator. The catalog's display names and descriptions are its own, pinned in `scripts/validate-catalog.mjs`; they intentionally differ from the plugins' manifests, so leave them alone unless a rename is wanted, and change both files together.
 
 Commit as `chore(catalog): update <plugin name> to <version>` (several plugins: one commit naming each) and push `main`.
+
+## Catalog contributor attribution
+
+Catalog commits use the verified App address
+`342793482+attmonk-ci[bot]@users.noreply.github.com` with author name
+`attmonk-ci`. The publisher fixes this identity so an organization email or
+repository variable cannot attribute catalog commits to a person. Local catalog
+checkouts set `attmonk.requireBotAttribution=true`; the commit guard enforces the
+same identity. Published version tags remain unchanged when default-branch
+history is replaced, preserving existing Go module checksums.
