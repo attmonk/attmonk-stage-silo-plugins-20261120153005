@@ -33,7 +33,7 @@ Check the run's summary for the planned version, the notes and the catalog commi
 
 ## Setup the workflows need
 
-- The organization secret `ATTMONK_CI_APP_KEY` holds a private key of the CI GitHub App (app ID 5324952) and must be available to every plugin repo. The App is `attmonk-ci`, with the original installation and private key.
+- The organization secret `ATTMONK_CI_APPKEY` holds a private key of the CI GitHub App (app ID 5324952) and must allow all repositories, including recreated repository IDs. Workflows also accept `ATTMONK_CI_APP_KEY` for compatibility. The App is `attmonk-ci`, with the original installation and private key.
 - Actions must be enabled in each plugin repo. A new fork runs no workflows until someone enables them on its Actions tab.
 
 ## Adding a plugin to the catalog
